@@ -7,7 +7,7 @@ End Sub
 
 Function getCSV_utf8(strPath As String, encoding As String)
 
-    Dim row As Long, col As Long
+    Dim row As Long, col As Long, col_pos
     Dim strLine As String
     Dim arrLine As Variant
     Dim adoSt As Object
@@ -16,17 +16,17 @@ Function getCSV_utf8(strPath As String, encoding As String)
 
     Dim combinedArray() As Variant
     ReDim combinedArray(1 To 1000, 1 To 1)
+    ReDim timestampPos(1 To 1000, 1 To 2)
 
     row = 0
     With adoSt
         .Charset = encoding
         .Open
         .LoadFromFile strPath
-
         Do Until .EOS
             strLine = .ReadText(adReadLine)
             Debug.Print strLine
-            If strLine = "" Then Exit Do  ' Exit If empty line is encountered
+            If strLine = "" Then Exit Do
                 row = row + 1
 
                 arrLine = Split(Replace(strLine, """", ""), ",")
@@ -39,13 +39,43 @@ Function getCSV_utf8(strPath As String, encoding As String)
 
                     combinedArray(row, col + 1) = IIf(arrLine(col) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col))
 
+                    If IsDateTimeFormat(combinedArray(row, col + 1)) Then
+                        col_pos = col_pos + 1
+                        timestampPos(col_pos, 1) = row
+                        timestampPos(col_pos, 2) = col + 1
+                    End If
+
                 Next col
 
             Loop
-
             .Close
         End With
 
         Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
+End Function
+
+Function IsDateTimeFormat(Byval strValue As String) As Boolean
+    Dim regEx As Object
+    Dim strPattern As String
+
+    ' Create RegEx object
+    Set regEx = CreateObject("VBScript.RegExp")
+
+    ' Define the pattern For yyyy/mm/dd hh:mm:ss.000
+    strPattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$"
+
+    ' Set RegEx properties
+    With regEx
+        .Global = False
+        .MultiLine = False
+        .IgnoreCase = False
+        .Pattern = strPattern
+    End With
+
+    ' Test If the string matches the pattern
+    IsDateTimeFormat = regEx.test(strValue)
+
+    ' Clean up
+    Set regEx = Nothing
 End Function
 
