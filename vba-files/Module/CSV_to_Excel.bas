@@ -1,5 +1,5 @@
 Attribute VB_Name = "CSV_to_Excel"
-Function getCSV_utf8(strPath As String)
+Function getCSV_utf8(strPath As String, encoding As String)
 
     Dim i As Long, j As Long
     Dim strLine As String
@@ -11,7 +11,7 @@ Function getCSV_utf8(strPath As String)
 
     i = 1
     With adoSt
-        .Charset = "SJIS"  ' Changed To UTF-8 As per Function name
+        .Charset = encoding
         .Open
         .LoadFromFile strPath
 
@@ -36,5 +36,6 @@ End Function
 
 Sub main()
     Dim strPath As String
-    getCSV_utf8 "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv"
+    Dim encoding As String
+    getCSV_utf8 "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv", "SJIS"
 End Sub
