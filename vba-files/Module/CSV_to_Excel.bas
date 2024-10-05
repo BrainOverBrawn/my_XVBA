@@ -20,18 +20,17 @@ Sub getCSV_utf8()
         .Open
         .LoadFromFile strPath
 
-        '        .Type = adTypeText
-
-
         Do Until .EOS
             strLine = .ReadText(adReadLine)
             Debug.Print strLine
             If strLine = "" Then Exit Do  ' Exit If empty line is encountered
 
-                arrLine = Split(Replace(replaceColon(strLine), """", ""), ":")
+                '            arrLine = Split(Replace(replaceColon(strLine), """", ""), ":")
+                arrLine = Split(strLine, ",")
 
                 For j = 0 To UBound(arrLine)
-                    Debug.Print arrLine(j)
+                    Debug.Print IIf(arrLine(j) = "", "NULL", arrLine(j))
+
                     '                ws.Cells(i, j + 1).Value = arrLine(j)  ' Uncommented this line
                 Next j
                 i = i + 1
