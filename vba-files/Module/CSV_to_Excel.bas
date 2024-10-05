@@ -1,11 +1,16 @@
 Attribute VB_Name = "CSV_to_Excel"
+Sub main()
+    Dim strPath As String
+    Dim encoding As String
+    getCSV_utf8 "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv", "SJIS"
+End Sub
+
 Function getCSV_utf8(strPath As String, encoding As String)
 
     Dim i As Long, j As Long
     Dim strLine As String
     Dim arrLine As Variant
 
-    'ADODB.Streamオブジェクトを生成
     Dim adoSt As Object
     Set adoSt = CreateObject("ADODB.Stream")
 
@@ -33,9 +38,3 @@ Function getCSV_utf8(strPath As String, encoding As String)
 
         Debug.Print "CSV import completed. " & (i - 1) & " rows processed.", vbInformation
 End Function
-
-Sub main()
-    Dim strPath As String
-    Dim encoding As String
-    getCSV_utf8 "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv", "SJIS"
-End Sub
