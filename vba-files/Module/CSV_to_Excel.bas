@@ -1,10 +1,5 @@
 Attribute VB_Name = "CSV_to_Excel"
-Sub getCSV_utf8()
-    Dim ws As Worksheet
-    Set ws = ThisWorkbook.Worksheets(1)
-
-    Dim strPath As String
-    strPath = "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv"
+Function getCSV_utf8(strPath As String)
 
     Dim i As Long, j As Long
     Dim strLine As String
@@ -37,4 +32,9 @@ Sub getCSV_utf8()
         End With
 
         Debug.Print "CSV import completed. " & (i - 1) & " rows processed.", vbInformation
+End Function
+
+Sub main()
+    Dim strPath As String
+    getCSV_utf8 "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv"
 End Sub
