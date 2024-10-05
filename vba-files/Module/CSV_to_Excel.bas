@@ -16,33 +16,34 @@ Sub getCSV_utf8()
 
     i = 1
     With adoSt
-        .Charset = "SJIS"  ' Changed to UTF-8 as per function name
+        .Charset = "SJIS"  ' Changed To UTF-8 As per Function name
         .Open
         .LoadFromFile strPath
 
-'        .Type = adTypeText
-        
+        '        .Type = adTypeText
+
 
         Do Until .EOS
             strLine = .ReadText(adReadLine)
-            If strLine = "" Then Exit Do  ' Exit if empty line is encountered
+            Debug.Print strLine
+            If strLine = "" Then Exit Do  ' Exit If empty line is encountered
 
-            arrLine = Split(Replace(replaceColon(strLine), """", ""), ":")
+                arrLine = Split(Replace(replaceColon(strLine), """", ""), ":")
 
-            For j = 0 To UBound(arrLine)
-                Debug.Print arrLine(j)
-'                ws.Cells(i, j + 1).Value = arrLine(j)  ' Uncommented this line
-            Next j
-            i = i + 1
-        Loop
+                For j = 0 To UBound(arrLine)
+                    Debug.Print arrLine(j)
+                    '                ws.Cells(i, j + 1).Value = arrLine(j)  ' Uncommented this line
+                Next j
+                i = i + 1
+            Loop
 
-        .Close
-    End With
+            .Close
+        End With
 
-    MsgBox "CSV import completed. " & (i - 1) & " rows processed.", vbInformation
+        Debug.Print "CSV import completed. " & (i - 1) & " rows processed.", vbInformation
 End Sub
 
-Function replaceColon(ByVal str As String) As String
+Function replaceColon(Byval str As String) As String
     Dim strTemp As String
     Dim quotCount As Long
 
@@ -51,7 +52,7 @@ Function replaceColon(ByVal str As String) As String
         strTemp = Mid(str, l, 1)
         If strTemp = """" Then
             quotCount = quotCount + 1
-        ElseIf strTemp = "," Then
+        Elseif strTemp = "," Then
             If quotCount Mod 2 = 0 Then
                 str = Left(str, l - 1) & ":" & Right(str, Len(str) - l)
             End If
