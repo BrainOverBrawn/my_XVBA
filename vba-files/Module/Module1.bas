@@ -20,18 +20,18 @@ Sub ImportAndPasteCSVs()
     dateTimePositions = result(1)
 
     ' Paste combined array To the active sheet
-'    ActiveSheet.Range("A1").Resize(UBound(combinedArray, 1), UBound(combinedArray, 2)).Value = combinedArray
+    '    ActiveSheet.Range("A1").Resize(UBound(combinedArray, 1), UBound(combinedArray, 2)).Value = combinedArray
 
     ' Highlight cells With date-time format (Optional)
     For i = 1 To UBound(dateTimePositions, 1)
-'        ActiveSheet.Cells(dateTimePositions(i, 1), dateTimePositions(i, 2)).Interior.Color = RGB(255, 255, 0)
+        '        ActiveSheet.Cells(dateTimePositions(i, 1), dateTimePositions(i, 2)).Interior.Color = RGB(255, 255, 0)
     Next i
 
     MsgBox "Import complete. " & UBound(dateTimePositions, 1) & " date-time formatted cells found."
 End Sub
 
 Function ImportMultipleCSVs(folderPath As String) As Variant
-'    Dim fso As Object
+    '    Dim fso As Object
     Dim fso As New FileSystemObject
     Dim folder As Object
     Dim file As file
@@ -45,7 +45,7 @@ Function ImportMultipleCSVs(folderPath As String) As Variant
     Dim maxCols As Long
 
     ' Create FileSystemObject
-'    Set fso = CreateObject("Scripting.FileSystemObject")
+    '    Set fso = CreateObject("Scripting.FileSystemObject")
     Set folder = fso.GetFolder(folderPath)
 
     ' Initialize arrays
@@ -57,54 +57,7 @@ Function ImportMultipleCSVs(folderPath As String) As Variant
 
     ' Loop through each CSV file in the folder
     For Each file In folder.Files
-    
-    
 
-
-
-    strPath = file.Path
-
-    Dim i As Long, j As Long
-    Dim strLine As String
-    Dim arrLine As Variant 'カンマでsplitして格納
-
-    'ADODB.Streamオブジェクトを生成
-    Dim adoSt As Object
-    Set adoSt = CreateObject("ADODB.Stream")
-
-    i = 1
-    With adoSt
-        .Charset = "UTF-8"        'Streamで扱う文字コートをutf-8に設定
-        .Open                             'Streamをオープン
-        .LoadFromFile (strPath) 'ファイルからStreamにデータを読み込む
-
-        Do Until .EOS           'Streamの末尾まで繰り返す
-
-            strLine = .ReadText(adReadLine) 'Streamから1行取り込み
-
-            arrLine = Split(Replace(replaceColon(strLine), """", ""), ":") 'strLineをカンマで区切りarrLineに格納
-
-            For j = 0 To UBound(arrLine)
-
-                ws.Cells(i, j + 1).Value = arrLine(j)
-
-            Next j
-            i = i + 1
-        Loop
-
-        .Close
-    End With
-    
-        
-    
-    
-    
-    
-    
-    
-    
-    
-        Debug.Print file.Type
         If LCase(Right(file.Name, 4)) = ".csv" Then
             ' Open the CSV file
             Set fileStream = fso.OpenTextFile(file.Path, 1, False, -1)
@@ -147,7 +100,7 @@ Function ImportMultipleCSVs(folderPath As String) As Variant
     ImportMultipleCSVs = Array(combinedArray, dateTimePositions)
 End Function
 
-Function IsDateTimeFormat(ByVal strValue As String) As Boolean
+Function IsDateTimeFormat(Byval strValue As String) As Boolean
     Dim regEx As Object
     Dim strPattern As String
 
