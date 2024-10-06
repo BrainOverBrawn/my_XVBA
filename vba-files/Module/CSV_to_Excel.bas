@@ -5,60 +5,78 @@ Sub main()
     Dim strPath As String
     Dim encoding As String
     Dim resultArray As Variant
-    resultArray = getCSV_utf8("C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv", "SJIS")
+    resultArray = getCSV_utf8("C:\DEV_v02\my_XVBA\csv_files", "SJIS")
 End Sub
 
-Function getCSV_utf8(strPath As String, encoding As String) As Variant
+Function getCSV_utf8(folderPath As String, encoding As String) As Variant
+
+    Dim fso As New FileSystemObject
+    Dim folder As folder
+    Dim file As file
 
     Dim row As Long, col As Long, row_pos As Long
     Dim strLine As String
     Dim arrLine As Variant
     Dim adoSt As Object
     Set adoSt = CreateObject("ADODB.Stream")
-    Dim maxCols As Long
-    Dim two_spaces As Long
+    Dim maxCols As Long, minCols As Long
+    Dim two_spaces As Long, lineCount As Long
     two_spaces = 2
-
 
     Dim combinedArray() As Variant
     ReDim combinedArray(1 To 1000, 1 To 1)
     ReDim timestampPos(1 To 1000, 1 To 2)
 
     row = 0
-    With adoSt
-        .Charset = encoding
-        .Open
-        .LoadFromFile strPath
-        Do Until .EOS
-            strLine = .ReadText(adReadLine)
-            Debug.Print strLine
-            If strLine = "" Then Exit Do
-                row = row + 1
-
-                arrLine = Split(Replace(strLine, """", ""), ",")
-                If UBound(arrLine) + two_spaces > maxCols Then
-                    maxCols = UBound(arrLine) + two_spaces
-                    ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
-                End If
+    Set folder = fso.GetFolder(folderPath)
+    For Each file In folder.Files
 
 
-                For col = 1 To UBound(arrLine)
+        lineCount = 0
+        With adoSt
+            .Charset = encoding
+            .Open
+            .LoadFromFile file.Path
 
-                    combinedArray(row, col + two_spaces) = IIf(arrLine(col) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col))
+            Do Until .EOS
+                lineCount = lineCount + 1
+                strLine = .ReadText(adReadLine)
+                Debug.Print strLine
+                If strLine = "" Then Exit Do
 
-                    If IsDateTimeFormat(combinedArray(row, col + two_spaces)) Then
-                        row_pos = row_pos + 1
-                        timestampPos(row_pos, 1) = row
-                        timestampPos(row_pos, 2) = col + two_spaces
+
+                    row = row + 1
+                    arrLine = Split(Replace(strLine, """", ""), ",")
+                    minCols = UBound(arrLine) + 1 + two_spaces
+                    If minCols > maxCols Then
+                        maxCols = minCols
+                        ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
                     End If
 
-                Next col
+                    If lineCount = 1 Then
+                        combinedArray(row, 1 + two_spaces) = file.Name
+                        row = row + 1
+                    End If
 
-            Loop
-            .Close
-        End With
 
-        Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
+                    For col = 1 + two_spaces To minCols
+
+                        combinedArray(row, col) = IIf(arrLine(col - 1 - two_spaces) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col - 1 - two_spaces))
+
+                        If IsDateTimeFormat(combinedArray(row, col)) Then
+                            row_pos = row_pos + 1
+                            timestampPos(row_pos, 1) = row
+                            timestampPos(row_pos, 2) = col
+                        End If
+
+                    Next col
+
+                Loop
+                .Close
+            End With
+            Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
+            row = row + 2
+        Next file
         getCSV_utf8 = combinedArray
 End Function
 
