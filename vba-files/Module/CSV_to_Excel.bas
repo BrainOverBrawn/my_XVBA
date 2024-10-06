@@ -4,24 +4,26 @@ Option Explicit
 Sub main()
     Dim strPath As String
     Dim encoding As String
-    Dim resultArray As Variant
+    Dim rsltArray As Variant
     Dim row As Long, col As Long
 
     encoding = GetEncoding
 
-    resultArray = getCSV_utf8("C:\DEV_v02\my_XVBA\csv_files", encoding)
+    rsltArray = GetRsltArray("C:\DEV_v02\my_XVBA\csv_files", encoding)
 
-    ActiveSheet.Range("A1").Resize(UBound(resultArray(1, 1), 1), UBound(resultArray(1, 1), 2)).Value = resultArray(1, 1)
+    ActiveSheet.Range("A1").Resize(UBound(rsltArray(1, 1), 1), UBound(rsltArray(1, 1), 2)).Value = rsltArray(1, 1)
 
-    For row = 1 To UBound(resultArray(2, 1), 1)
-        If Not (resultArray(2, 1)(row, 2) = 0) Then
-            Cells(resultArray(2, 1)(row, 1), resultArray(2, 1)(row, 2)).NumberFormat = "yyyy/mm/dd hh:mm:ss.000"
+    For row = 1 To UBound(rsltArray(2, 1), 1)
+        If Not (rsltArray(2, 1)(row, 2) = 0) Then
+            Cells(rsltArray(2, 1)(row, 1), rsltArray(2, 1)(row, 2)).NumberFormat = "yyyy/mm/dd hh:mm:ss.000"
         End If
     Next row
 
 End Sub
 
-Function getCSV_utf8(folderPath As String, encoding As String) As Variant
+Function GetRsltArray(folderPath As String, encoding As String) As Variant
+    Dim rsltArray() As Variant
+    ReDim rsltArray(1 To 2, 1 To 1)
 
     Dim fso As New FileSystemObject
     Dim folder As folder
@@ -38,26 +40,24 @@ Function getCSV_utf8(folderPath As String, encoding As String) As Variant
 
     Dim combinedArray() As Variant
     ReDim combinedArray(1 To 1000, 1 To 1)
-    ReDim timestampPos(1 To 1000, 1 To 2)
+    ReDim tmstpPosArray(1 To 1000, 1 To 2)
 
     row = 0
     Set folder = fso.GetFolder(folderPath)
     For Each file In folder.Files
 
-
         lineCount = 0
+        row = row + 3
         With adoSt
             .Charset = encoding
             .Open
             .LoadFromFile file.Path
 
             Do Until .EOS
-                lineCount = lineCount + 1
                 strLine = .ReadText(adReadLine)
                 Debug.Print strLine
                 If strLine = "" Then Exit Do
-
-
+                    lineCount = lineCount + 1
                     row = row + 1
                     arrLine = Split(Replace(strLine, """", ""), ",")
                     minCols = UBound(arrLine) + 1 + two_spaces
@@ -66,11 +66,10 @@ Function getCSV_utf8(folderPath As String, encoding As String) As Variant
                         ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
                     End If
 
-                    If lineCount = 1 Then
-                        combinedArray(row, 1 + two_spaces) = file.Name
-                        row = row + 1
-                    End If
-
+                    ' If lineCount = 1 Then
+                    '     combinedArray(row, 1 + two_spaces) = file.Name
+                    '     row = row + 1
+                    ' End If
 
                     For col = 1 + two_spaces To minCols
 
@@ -78,24 +77,20 @@ Function getCSV_utf8(folderPath As String, encoding As String) As Variant
 
                         If IsDateTimeFormat(combinedArray(row, col)) Then
                             row_pos = row_pos + 1
-                            timestampPos(row_pos, 1) = row
-                            timestampPos(row_pos, 2) = col
+                            tmstpPosArray(row_pos, 1) = row
+                            tmstpPosArray(row_pos, 2) = col
                         End If
-
                     Next col
-
                 Loop
                 .Close
             End With
+            combinedArray(row - lineCount, 1 + two_spaces) = file.Name
             Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
-            row = row + 2
         Next file
 
-        Dim rsltArray() As Variant
-        ReDim rsltArray(1 To 2, 1 To 1)
         rsltArray(1, 1) = combinedArray
-        rsltArray(2, 1) = timestampPos
-        getCSV_utf8 = rsltArray
+        rsltArray(2, 1) = tmstpPosArray
+        GetRsltArray = rsltArray
 End Function
 
 Function IsDateTimeFormat(Byval strValue As String) As Boolean
