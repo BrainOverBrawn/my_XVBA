@@ -1,4 +1,6 @@
 Attribute VB_Name = "CSV_to_Excel"
+Option Explicit
+
 Sub main()
     Dim strPath As String
     Dim encoding As String
@@ -7,12 +9,15 @@ End Sub
 
 Function getCSV_utf8(strPath As String, encoding As String)
 
-    Dim row As Long, col As Long, col_pos
+    Dim row As Long, col As Long, row_pos As Long
     Dim strLine As String
     Dim arrLine As Variant
     Dim adoSt As Object
     Set adoSt = CreateObject("ADODB.Stream")
     Dim maxCols As Long
+    Dim two_spaces As Long
+    two_spaces = 2
+
 
     Dim combinedArray() As Variant
     ReDim combinedArray(1 To 1000, 1 To 1)
@@ -30,19 +35,20 @@ Function getCSV_utf8(strPath As String, encoding As String)
                 row = row + 1
 
                 arrLine = Split(Replace(strLine, """", ""), ",")
+                If UBound(arrLine) + two_spaces > maxCols Then
+                    maxCols = UBound(arrLine) + two_spaces
+                    ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
+                End If
 
-                For col = 0 To UBound(arrLine)
-                    If UBound(arrLine) + 1 > maxCols Then
-                        maxCols = UBound(arrLine) + 1
-                        ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
-                    End If
 
-                    combinedArray(row, col + 1) = IIf(arrLine(col) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col))
+                For col = 1 To UBound(arrLine)
 
-                    If IsDateTimeFormat(combinedArray(row, col + 1)) Then
-                        col_pos = col_pos + 1
-                        timestampPos(col_pos, 1) = row
-                        timestampPos(col_pos, 2) = col + 1
+                    combinedArray(row, col + two_spaces) = IIf(arrLine(col) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col))
+
+                    If IsDateTimeFormat(combinedArray(row, col + two_spaces)) Then
+                        row_pos = row_pos + 1
+                        timestampPos(row_pos, 1) = row
+                        timestampPos(row_pos, 2) = col + two_spaces
                     End If
 
                 Next col
@@ -78,4 +84,3 @@ Function IsDateTimeFormat(Byval strValue As String) As Boolean
     ' Clean up
     Set regEx = Nothing
 End Function
-
