@@ -5,12 +5,9 @@ Sub main()
     Dim strPath As String
     Dim encoding As String
     Dim resultArray As Variant
-    Dim response As VbMsgBoxResult
     Dim row As Long, col As Long
 
-    response = MsgBox("SJIS", vbYesNo + vbQuestion, "Confirmation")
-    encoding = IIf(response = vbYes, "SJIS", "UTF-8")
-
+    encoding = GetEncoding
 
     resultArray = getCSV_utf8("C:\DEV_v02\my_XVBA\csv_files", encoding)
 
@@ -105,13 +102,8 @@ Function IsDateTimeFormat(Byval strValue As String) As Boolean
     Dim regEx As Object
     Dim strPattern As String
 
-    ' Create RegEx object
     Set regEx = CreateObject("VBScript.RegExp")
-
-    ' Define the pattern For yyyy/mm/dd hh:mm:ss.000
     strPattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$"
-
-    ' Set RegEx properties
     With regEx
         .Global = False
         .MultiLine = False
@@ -119,11 +111,16 @@ Function IsDateTimeFormat(Byval strValue As String) As Boolean
         .Pattern = strPattern
     End With
 
-    ' Test If the string matches the pattern
     IsDateTimeFormat = regEx.test(strValue)
 
-    ' Clean up
     Set regEx = Nothing
 End Function
+
+Function GetEncoding() As String
+    Dim response As VbMsgBoxResult
+    response = MsgBox("SJIS", vbYesNo + vbQuestion, "Confirmation")
+    GetEncoding = IIf(response = vbYes, "SJIS", "UTF-8")
+End Function
+
 
 
