@@ -1,11 +1,12 @@
 Attribute VB_Name = "CSV_to_Excel"
-'Option Explicit
+Option Explicit
 
 Sub main()
     Dim strPath As String
     Dim encoding As String
     Dim resultArray As Variant
     Dim response As VbMsgBoxResult
+    Dim row As Long, col As Long
 
     response = MsgBox("SJIS", vbYesNo + vbQuestion, "Confirmation")
     encoding = IIf(response = vbYes, "SJIS", "UTF-8")
@@ -14,6 +15,13 @@ Sub main()
     resultArray = getCSV_utf8("C:\DEV_v02\my_XVBA\csv_files", encoding)
 
     ActiveSheet.Range("A1").Resize(UBound(resultArray(1, 1), 1), UBound(resultArray(1, 1), 2)).Value = resultArray(1, 1)
+
+    For row = 1 To UBound(resultArray(2, 1), 1)
+        If Not (resultArray(2, 1)(row, 2) = 0) Then
+            Cells(resultArray(2, 1)(row, 1), resultArray(2, 1)(row, 2)).NumberFormat = "yyyy/mm/dd hh:mm:ss.000"
+        End If
+    Next row
+
 End Sub
 
 Function getCSV_utf8(folderPath As String, encoding As String) As Variant
@@ -117,4 +125,5 @@ Function IsDateTimeFormat(Byval strValue As String) As Boolean
     ' Clean up
     Set regEx = Nothing
 End Function
+
 
