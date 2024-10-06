@@ -37,9 +37,8 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
     Dim arrLine As Variant
     Dim adoSt As Object
     Set adoSt = CreateObject("ADODB.Stream")
-    Dim maxCols As Long
-    Dim TWO_SPACES As Long, lineCount As Long
-    TWO_SPACES = 2
+
+    Dim lineCount As Long
 
     Dim combinedArray() As Variant
     ReDim combinedArray(1 To 1000, 1 To 1)
@@ -63,7 +62,7 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
                     lineCount = lineCount + 1
                     row = row + 1
                     arrLine = Split(Replace(strLine, """", ""), ",")
-                    ExpandColumns combinedArray, arrLine, maxCols
+                    ExpandColumns combinedArray, arrLine
 
                     For col = 1 + TWO_SPACES To UBound(arrLine) + 1 + TWO_SPACES
                         combinedArray(row, col) = IIf(arrLine(col - 1 - TWO_SPACES) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col - 1 - TWO_SPACES))
@@ -111,10 +110,9 @@ Function GetEncoding() As String
     GetEncoding = IIf(response = vbYes, "SJIS", "UTF-8")
 End Function
 
-Function ExpandColumns(combinedArray As Variant, arrLine As Variant, maxCols As Long)
-    If UBound(arrLine) + 1 + TWO_SPACES > maxCols Then
-        maxCols = UBound(arrLine) + 1 + TWO_SPACES
-        ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
+Function ExpandColumns(combinedArray As Variant, arrLine As Variant)
+    If UBound(arrLine) + 1 + TWO_SPACES > UBound(combinedArray, 2) Then
+        ReDim Preserve combinedArray(1 To 1000, 1 To UBound(arrLine) + 1 + TWO_SPACES)
     End If
 End Function
 
