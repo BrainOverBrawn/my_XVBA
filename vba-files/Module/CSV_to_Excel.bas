@@ -34,7 +34,7 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
     Dim arrLine As Variant
     Dim adoSt As Object
     Set adoSt = CreateObject("ADODB.Stream")
-    Dim maxCols As Long, minCols As Long
+    Dim maxCols As Long
     Dim two_spaces As Long, lineCount As Long
     two_spaces = 2
 
@@ -60,19 +60,9 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
                     lineCount = lineCount + 1
                     row = row + 1
                     arrLine = Split(Replace(strLine, """", ""), ",")
-                    minCols = UBound(arrLine) + 1 + two_spaces
-                    If minCols > maxCols Then
-                        maxCols = minCols
-                        ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
-                    End If
+                    ExpandColumns combinedArray, arrLine, two_spaces, maxCols
 
-                    ' If lineCount = 1 Then
-                    '     combinedArray(row, 1 + two_spaces) = file.Name
-                    '     row = row + 1
-                    ' End If
-
-                    For col = 1 + two_spaces To minCols
-
+                    For col = 1 + two_spaces To UBound(arrLine) + 1 + two_spaces
                         combinedArray(row, col) = IIf(arrLine(col - 1 - two_spaces) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col - 1 - two_spaces))
 
                         If IsDateTimeFormat(combinedArray(row, col)) Then
@@ -84,6 +74,7 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
                 Loop
                 .Close
             End With
+            ' ƒtƒ@ƒCƒ‹–¼
             combinedArray(row - lineCount, 1 + two_spaces) = file.Name
             Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
         Next file
@@ -117,5 +108,10 @@ Function GetEncoding() As String
     GetEncoding = IIf(response = vbYes, "SJIS", "UTF-8")
 End Function
 
-
+Function ExpandColumns(combinedArray As Variant, arrLine As Variant, two_spaces As Long, maxCols As Long)
+    If UBound(arrLine) + 1 + two_spaces > maxCols Then
+        maxCols = UBound(arrLine) + 1 + two_spaces
+        ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
+    End If
+End Function
 
