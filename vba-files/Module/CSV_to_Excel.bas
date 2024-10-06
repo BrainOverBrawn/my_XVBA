@@ -1,7 +1,10 @@
 Attribute VB_Name = "CSV_to_Excel"
 Option Explicit
 
+Const TWO_SPACES As Long = 2
+
 Sub main()
+
     Dim strPath As String
     Dim encoding As String
     Dim rsltArray As Variant
@@ -35,8 +38,8 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
     Dim adoSt As Object
     Set adoSt = CreateObject("ADODB.Stream")
     Dim maxCols As Long
-    Dim two_spaces As Long, lineCount As Long
-    two_spaces = 2
+    Dim TWO_SPACES As Long, lineCount As Long
+    TWO_SPACES = 2
 
     Dim combinedArray() As Variant
     ReDim combinedArray(1 To 1000, 1 To 1)
@@ -60,10 +63,10 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
                     lineCount = lineCount + 1
                     row = row + 1
                     arrLine = Split(Replace(strLine, """", ""), ",")
-                    ExpandColumns combinedArray, arrLine, two_spaces, maxCols
+                    ExpandColumns combinedArray, arrLine, maxCols
 
-                    For col = 1 + two_spaces To UBound(arrLine) + 1 + two_spaces
-                        combinedArray(row, col) = IIf(arrLine(col - 1 - two_spaces) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col - 1 - two_spaces))
+                    For col = 1 + TWO_SPACES To UBound(arrLine) + 1 + TWO_SPACES
+                        combinedArray(row, col) = IIf(arrLine(col - 1 - TWO_SPACES) = "", ChrW(171) & " NULL " & ChrW(187), arrLine(col - 1 - TWO_SPACES))
 
                         If IsDateTimeFormat(combinedArray(row, col)) Then
                             row_pos = row_pos + 1
@@ -75,7 +78,7 @@ Function GetRsltArray(folderPath As String, encoding As String) As Variant
                 .Close
             End With
             ' ƒtƒ@ƒCƒ‹–¼
-            combinedArray(row - lineCount, 1 + two_spaces) = file.Name
+            combinedArray(row - lineCount, 1 + TWO_SPACES) = file.Name
             Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
         Next file
 
@@ -108,9 +111,9 @@ Function GetEncoding() As String
     GetEncoding = IIf(response = vbYes, "SJIS", "UTF-8")
 End Function
 
-Function ExpandColumns(combinedArray As Variant, arrLine As Variant, two_spaces As Long, maxCols As Long)
-    If UBound(arrLine) + 1 + two_spaces > maxCols Then
-        maxCols = UBound(arrLine) + 1 + two_spaces
+Function ExpandColumns(combinedArray As Variant, arrLine As Variant, maxCols As Long)
+    If UBound(arrLine) + 1 + TWO_SPACES > maxCols Then
+        maxCols = UBound(arrLine) + 1 + TWO_SPACES
         ReDim Preserve combinedArray(1 To 1000, 1 To maxCols)
     End If
 End Function
