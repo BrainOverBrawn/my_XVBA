@@ -4,10 +4,11 @@ Option Explicit
 Sub main()
     Dim strPath As String
     Dim encoding As String
-    getCSV_utf8 "C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv", "SJIS"
+    Dim resultArray As Variant
+    resultArray = getCSV_utf8("C:\DEV_v02\my_XVBA\csv_files\mysql.sample_table.csv", "SJIS")
 End Sub
 
-Function getCSV_utf8(strPath As String, encoding As String)
+Function getCSV_utf8(strPath As String, encoding As String) As Variant
 
     Dim row As Long, col As Long, row_pos As Long
     Dim strLine As String
@@ -58,6 +59,7 @@ Function getCSV_utf8(strPath As String, encoding As String)
         End With
 
         Debug.Print "CSV import completed. " & row & " rows processed.", vbInformation
+        getCSV_utf8 = combinedArray
 End Function
 
 Function IsDateTimeFormat(Byval strValue As String) As Boolean
